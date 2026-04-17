@@ -3,53 +3,39 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dar
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/theme/app_colors.dart';
 
 //Login sayfasinda kullanilan TextField tanimlamasi
-class LoginTextField extends StatelessWidget {
-  const LoginTextField({
+class CustomTextField extends StatelessWidget {
+  const CustomTextField({
     super.key,
     required this.hintText,
     required this.labelText,
     required this.isPassword,
+    required this.icon,
+    this.keyboardType = TextInputType.text,
   });
   final bool isPassword;
   final String hintText;
   final String labelText;
+  final Icon icon;
   final int maxLength = 30;
+  final TextInputType keyboardType;
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: LoginScreenPadding.smallPadding,
       child: TextField(
+        keyboardType: keyboardType,
         obscureText: isPassword,
         maxLength: maxLength,
         decoration: InputDecoration(
           hintText: hintText,
           labelText: labelText,
-          prefixIcon: isPassword ? Icon(Icons.password) : Icon(Icons.email),
+          prefixIcon: isPassword ? Icon(Icons.password) : icon,
           border: OutlineInputBorder(),
-          fillColor: Colors.blueGrey[100],
-          filled: true,
+          // fillColor: Theme.of(context).inputDecorationTheme.fillColor,//hocaya sor bunu ben theme a uzerinden aliyorum fillColori bir daha burada manuel olarak yazayim mi gorunum acisindan yoksa yazmayaim mi
+          // filled: true,
         ),
       ),
     );
   }
 }
 
-//Uygulama genelinde kullanilan custom ElevatedButton
-class CustomElevatedButton extends StatelessWidget {
-  const CustomElevatedButton({super.key, required this.title});
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-      onPressed: () {},
-      child: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.headlineSmall?.copyWith(color: AppColors.white),
-      ),
-    );
-  }
-}

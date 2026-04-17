@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 //Uygulama Renkleri
 class AppColors {
-  // 🔵 Ana renkler
+  //  Ana renkler
   static const Color primary = Color(0xFF0F4C75);
   static const Color secondary = Color(0xFF3282B8);
 
@@ -13,7 +13,7 @@ class AppColors {
   //Metin renkleri
   static const Color textDark = Color(0xFF1B262C);
 
-  // Beyaz
+  //Beyaz
   static const Color white = Color(0xFFFFFFFF);
 
   //Vurgu rengi

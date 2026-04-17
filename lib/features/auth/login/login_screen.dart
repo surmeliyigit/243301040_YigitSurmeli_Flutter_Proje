@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/theme/app_colors.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/login/widgets/login_text_field.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/login/widgets/custom_elevated_button.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/login/widgets/custom_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       body: Padding(
         padding: LoginScreenPadding.mediumPadding,
-        child: ListView(
+        child: ListView(//Scroll view bak
           children: [
             Padding(
               padding: LoginScreenPadding.smallPadding,
@@ -41,15 +42,18 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextTheme.of(context).titleMedium,
               textAlign: TextAlign.center,
             ),
-            LoginTextField(
+            CustomTextField(
               hintText: "Mail giriniz",
               labelText: "Mail",
               isPassword: false,
+              icon: Icon(Icons.email),
+              keyboardType: TextInputType.emailAddress,
             ),
-            LoginTextField(
+            CustomTextField(
               hintText: "Şifre giriniz",
               labelText: "Şifre",
               isPassword: true,
+              icon: Icon(Icons.password),
             ),
             CustomElevatedButton(title: widget._title),
           ],
@@ -58,4 +62,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
