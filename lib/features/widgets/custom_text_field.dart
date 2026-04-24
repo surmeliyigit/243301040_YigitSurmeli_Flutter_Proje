@@ -4,13 +4,13 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/core/theme/app_colors.dart';
 
 //Login sayfasinda kullanilan TextField tanimlamasi
 class CustomTextField extends StatelessWidget {
-  const CustomTextField({
+  CustomTextField({
     super.key,
     required this.hintText,
     required this.labelText,
     required this.isPassword,
     required this.icon,
-    this.keyboardType = TextInputType.text,
+    this.keyboardType = TextInputType.text, required this.controller,
   });
   final bool isPassword;
   final String hintText;
@@ -18,10 +18,10 @@ class CustomTextField extends StatelessWidget {
   final Icon icon;
   final int maxLength = 30;
   final TextInputType keyboardType;
-  @override
+  final TextEditingController controller;
   Widget build(BuildContext context) {
     return Padding(
-      padding: LoginScreenPadding.smallPadding,
+      padding: ScreenPadding.smallPadding,
       child: TextField(
         keyboardType: keyboardType,
         obscureText: isPassword,
@@ -34,8 +34,8 @@ class CustomTextField extends StatelessWidget {
           // fillColor: Theme.of(context).inputDecorationTheme.fillColor,//hocaya sor bunu ben theme a uzerinden aliyorum fillColori bir daha burada manuel olarak yazayim mi gorunum acisindan yoksa yazmayaim mi
           // filled: true,
         ),
+        controller: controller,
       ),
     );
   }
 }
-

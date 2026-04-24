@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 //Uygulama Renkleri
 class AppColors {
   //  Ana renkler
@@ -18,4 +19,6 @@ class AppColors {
 
   //Vurgu rengi
   static const Color accent = Color(0xFF00B4D8);
+  //Card rengi
+  static Color? blueGray = Colors.blueGrey[10];
 }
