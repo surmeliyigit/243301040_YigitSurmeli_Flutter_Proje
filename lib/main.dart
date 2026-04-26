@@ -4,6 +4,10 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/core/theme/app_colors.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/login/login_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/register/register_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/home/home_screen.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/profile/profile_screen.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/services/services_details.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/services/services_screen.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/settings/settings_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,7 +40,7 @@ class MyApp extends StatelessWidget {
         ),
         progressIndicatorTheme: ProgressIndicatorThemeData(
           color: AppColors.textDark,
-        ),
+        ), 
       ),
       home: LoginScreen(),
     );

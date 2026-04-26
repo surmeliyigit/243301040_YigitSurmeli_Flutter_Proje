@@ -10,13 +10,15 @@ class CustomTextField extends StatelessWidget {
     required this.labelText,
     required this.isPassword,
     required this.icon,
-    this.keyboardType = TextInputType.text, required this.controller,
+    this.maxLength = 30,
+    this.keyboardType = TextInputType.text,
+    required this.controller,
   });
   final bool isPassword;
   final String hintText;
   final String labelText;
   final Icon icon;
-  final int maxLength = 30;
+  final int maxLength;
   final TextInputType keyboardType;
   final TextEditingController controller;
   Widget build(BuildContext context) {

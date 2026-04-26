@@ -3,6 +3,7 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dar
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/theme/app_colors.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_elevated_button.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_image_card.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_navigator_text_button.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_text_field.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/register/register_screen.dart';
@@ -20,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+
   void _girisYap() async {
     setState(() {
       _isLoading = true;
@@ -109,14 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: ListView(
           //Scroll view bak
           children: [
-            Padding(
-              padding: ScreenPadding.smallPadding,
-              child: Card(
-                child: Image.asset("assets/image/login_background.png"),
-                clipBehavior: Clip.antiAlias, //imagein koselerini kirpar
-                elevation: 15,
-              ),
-            ),
+            CustomImageCard(imagePath: "assets/image/login_background.png"),
             Text(
               "Oto Yıkama Hesabına Giriş Yap",
               style: TextTheme.of(context).titleMedium,
