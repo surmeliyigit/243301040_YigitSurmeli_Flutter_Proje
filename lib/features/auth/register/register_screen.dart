@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/core/theme/app_colors.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/login/login_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/home/home_screen.dart';

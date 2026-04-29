@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/core/theme/app_colors.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
 
 //Login sayfasinda kullanilan TextField tanimlamasi
 class CustomTextField extends StatelessWidget {

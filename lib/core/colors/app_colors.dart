@@ -19,6 +19,11 @@ class AppColors {
 
   //Vurgu rengi
   static const Color accent = Color(0xFF00B4D8);
+  static const Color cancelColor = Colors.red;
+  static const Color orange = Colors.orange;
+  static const Color green = Colors.green;
+
   //Card rengi
-  static Color? blueGray = Colors.blueGrey[10];
+  static Color? blueGray = Colors.blueGrey[50];
+  static Color? blueGrey=Colors.blueGrey[100];
 }

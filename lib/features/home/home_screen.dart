@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/core/theme/app_colors.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/randevu/view/create_appointment_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/profile/profile_screen.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/randevu/view/my_appointments.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/services/services_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/settings/settings_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_hizmet.dart';
@@ -22,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> pages = [
     HomeContent(),
     ServicesScreen(),
+    MyAppointmentScreen(),
     SettingsScreen(),
   ];
   int _selectedIndex = 0;
@@ -34,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ? widget._titleAppBar
               : _selectedIndex == 1
               ? "Hizmetler Ekranı"
+              : _selectedIndex == 2
+              ? "Randevularım"
               : "Ayarlar",
         ),
         centerTitle: false,
@@ -59,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: Container(
         height: 150,
         child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed, //buna bak
           currentIndex: _selectedIndex,
           onTap: (index) {
             setState(() {
@@ -67,9 +73,16 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           backgroundColor: AppColors.lightBlue,
           items: [
-            // BottomNavigationBarItem(icon: Icon(Icons.add), label: "Ana Sayfa"),Hocaya sor bunu ekledigimde neden verdigim ozellikler siliniyor
-            BottomNavigationBarItem(icon: Icon(Icons.add), label: "Ana Sayfa"),
-            BottomNavigationBarItem(icon: Icon(Icons.add), label: "Hizmetler"),
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Ana Sayfa"),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.cleaning_services),
+              label: "Hizmetler",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add),
+              label: "Randevularım",
+            ),
+
             BottomNavigationBarItem(
               icon: Icon(Icons.settings_outlined),
               label: "Ayarlar",
@@ -81,10 +94,18 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 70,
         width: 80,
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) {
+                  return CreateAppointmentScreen();
+                },
+              ),
+            );
+          },
           backgroundColor: AppColors.secondary,
           child: Text(
-            "Randevu Al",
+            _selectedIndex == 2 ? "Randevu Ekle" : "Randevu Al",
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: AppColors.backgroundPrimary,
@@ -93,7 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: _selectedIndex == 2
+          ? FloatingActionButtonLocation.endFloat
+          : FloatingActionButtonLocation.centerDocked,
     );
   }
 }

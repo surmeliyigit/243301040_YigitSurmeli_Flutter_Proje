@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/core/theme/app_colors.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/core/utils/snackbar_helper.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_elevated_button.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_image_card.dart';
@@ -33,27 +34,21 @@ class _LoginScreenState extends State<LoginScreen> {
     String password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lütfen tüm alanları doldurun!")),
-      );
+      SnackBarHelper.showError(context, "Lütfen tüm alanları doldurun!");
       setState(() {
         _isLoading = false;
       });
       return;
     }
     if (!email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Geçerli bir e-posta giriniz!")),
-      );
+      SnackBarHelper.showError(context, "Geçerli bir e-posta giriniz!");
       setState(() {
         _isLoading = false;
       });
       return;
     }
     if (password.length < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Şifre en az 4 haneden oluşmaktadır!")),
-      );
+      SnackBarHelper.showError(context, "Şifre en az 4 haneden oluşmaktadır!");
       setState(() {
         _isLoading = false;
       });
@@ -63,8 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
       (user) => user["email"] == email && user["password"] == password,
     );
     if (!isUser) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("E-posta veya şifreyi hatalı girdiniz!")),
+      SnackBarHelper.showError(
+        context,
+        "E-posta veya şifreyi hatalı girdiniz!",
       );
       setState(() {
         _isLoading = false;
@@ -77,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailController
         .clear(); //bu kisim ram sisirmesini engeller kullanici login sayfasina tekar dondugunde textfieldlarin icerikleri temizlenir
     _passwordController.clear();
-    Navigator.of(context).push(
+    Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) {
           return HomeScreen();
