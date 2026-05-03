@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/utils/snackbar_helper.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/admin/admin_home.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_elevated_button.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_image_card.dart';
@@ -9,6 +10,8 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_naviga
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_text_field.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/register/register_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/home/home_screen.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/main.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,12 +30,11 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = true;
     });
-    await Future.delayed(Duration(seconds: 2));
-    // String emailTest = "yigit@gmail.com";
-    // String passwordTest = "1234";
+
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
+    // 1. Temel Validasyonlar (Zaten kodunda var)
     if (email.isEmpty || password.isEmpty) {
       SnackBarHelper.showError(context, "Lütfen tüm alanları doldurun!");
       setState(() {
@@ -54,32 +56,47 @@ class _LoginScreenState extends State<LoginScreen> {
       });
       return;
     }
-    bool isUser = UserData.users.any(
-      (user) => user["email"] == email && user["password"] == password,
-    );
-    if (!isUser) {
-      SnackBarHelper.showError(
-        context,
-        "E-posta veya şifreyi hatalı girdiniz!",
-      );
-      setState(() {
-        _isLoading = false;
-      });
-      return;
+    try {
+      final response = await Supabase.instance.client
+          .from('kullanici')
+          .select('*, roller(rol)')
+          .eq('eposta', email)
+          .eq('sifre', password)
+          .maybeSingle();
+      if (response == null) {
+        SnackBarHelper.showError(context, "E-posta veya şifre hatalı!");
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+      UserSession.user = response;
+      final roleData = response['roller'];
+      final String userRole = roleData != null ? roleData['rol'] : 'Kullanıcı';
+
+      _emailController.clear();
+      _passwordController.clear();
+        //admin girisi icin yonledirme
+      if (userRole == 'Admin') {
+        SnackBarHelper.showSuccess(context, "Hoş geldiniz Admin!");
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+        );
+      } else {
+        //Normal kullanıcı girisi icin yonlendirme
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      SnackBarHelper.showError(context, "Bir hata oluştu: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
-    setState(() {
-      _isLoading = false;
-    });
-    _emailController
-        .clear(); //bu kisim ram sisirmesini engeller kullanici login sayfasina tekar dondugunde textfieldlarin icerikleri temizlenir
-    _passwordController.clear();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) {
-          return HomeScreen();
-        },
-      ),
-    );
   }
 
   @override

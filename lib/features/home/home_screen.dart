@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/randevu/view/create_appointment_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/profile/profile_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/randevu/view/my_appointments.dart';
@@ -14,8 +15,6 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/section_heade
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-  final String _titleAppBar = "Tekrar Hoşgeldiniz";
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -34,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(
           _selectedIndex == 0
-              ? widget._titleAppBar
+              ? "Hoşgeldin ${UserSession.user?['ad']}"
               : _selectedIndex == 1
               ? "Hizmetler Ekranı"
               : _selectedIndex == 2
@@ -45,13 +44,17 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return ProfileScreen();
-                  },
-                ),
-              );
+              Navigator.of(context)
+                  .push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ProfileScreen();
+                      },
+                    ),
+                  )
+                  .then((_) {//bak buna
+                    setState(() {});
+                  });
             },
             icon: Icon(Icons.account_circle_rounded),
           ),

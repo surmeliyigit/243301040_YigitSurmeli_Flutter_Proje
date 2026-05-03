@@ -1,5 +1,3 @@
-class UserData {
-  static List<Map<String, String>> users = [
-    {"email": "yigit@gmail.com", "password": "1234"},
-  ];
+class UserSession {
+  static Map<String, dynamic>? user;
 }

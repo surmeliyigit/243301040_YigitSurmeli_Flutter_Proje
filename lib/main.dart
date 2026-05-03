@@ -11,11 +11,19 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/features/randevu/view/my_appoi
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/services/services_details.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/services/services_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/settings/settings_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  //Supabase bağlantısı
+  await Supabase.initialize(
+    url: 'https://eadfhmjsztnyglbeuhsy.supabase.co',
+    anonKey: 'sb_publishable_woEogmW1deL4NHFYzTeNVQ_QXMmRsWC',
+  );
   runApp(const MyApp());
 }
-
+final supabase = Supabase.instance.client;
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
