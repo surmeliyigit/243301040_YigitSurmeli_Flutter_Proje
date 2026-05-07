@@ -32,15 +32,15 @@ class FavoriteCardWidget extends StatelessWidget {
             ),
             width: 150,
           ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: CustomNavigatorTextButton(
-              text: "Hızlı Randevu",
-              widget: HomeScreen(),
-              type: NavigationType.push,
-            ),
-          ),
+          // Positioned(
+          //   bottom: 0,
+          //   right: 0,
+          //   child: CustomNavigatorTextButton(
+          //     text: "Hızlı Randevu",
+          //     widget: HomeScreen(),
+          //     type: NavigationType.push,
+          //   ),
+          // ),
         ],
       ),
     );

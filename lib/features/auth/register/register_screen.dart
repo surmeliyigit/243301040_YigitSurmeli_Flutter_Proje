@@ -5,6 +5,7 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/login/login_scre
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/home/home_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_elevated_button.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_list_tile.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_navigator_text_button.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_text_field.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
@@ -26,93 +27,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   bool _isLoading = false;
-  // int? selectedIlId;
-  // int? selectedIlceId;
-
-  // String? selectedIlName;
-  // String? selectedIlceName;
-
-  // List<Map<String, dynamic>> iller = [];
-  // List<Map<String, dynamic>> ilceler = [];
-  // //Listeyi final yerine static tanimladim cunku pushReplacement yaptigim icin bellekten siliniyor o yuzden static tanimlaik cunku static degiskenler program bitene kadar bellekte yer almayaya devam eder
-  // //Daha once hesap olusturmus birinin sifresi ile yeni hesap olusturan birini sifresi birbirinden farkli olsun bunu sayfaya ekle
-  // void _showIlPicker() {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     builder: (context) {
-  //       return ListView.builder(
-  //         itemCount: iller.length,
-  //         itemBuilder: (context, index) {
-  //           final il = iller[index];
-
-  //           return ListTile(
-  //             title: Text(il['ad']),
-  //             onTap: () {
-  //               setState(() {
-  //                 selectedIlId = il['id'];
-  //                 selectedIlName = il['ad'];
-  //               });
-
-  //               Navigator.pop(context);
-  //               _loadIlceler(il['id']);
-  //             },
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
-  // void _showIlcePicker() {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     builder: (context) {
-  //       return ListView.builder(
-  //         itemCount: ilceler.length,
-  //         itemBuilder: (context, index) {
-  //           final ilce = ilceler[index];
-
-  //           return ListTile(
-  //             title: Text(ilce['ad']),
-  //             onTap: () {
-  //               setState(() {
-  //                 selectedIlceId = ilce['id'];
-  //                 selectedIlceName = ilce['ad'];
-  //               });
-
-  //               Navigator.pop(context);
-  //             },
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Future<void> _loadIller() async {
-  //   final response = await Supabase.instance.client.from('iller').select();
-  //   print("ILLER RESPONSE: $response");
-  //   setState(() {
-  //     iller = List<Map<String, dynamic>>.from(response);
-  //   });
-  // }
-
-  // Future<void> _loadIlceler(int ilId) async {
-  //   final response = await Supabase.instance.client
-  //       .from('ilce')
-  //       .select()
-  //       .eq('ilid', ilId);
-
-  //   setState(() {
-  //     ilceler = List<Map<String, dynamic>>.from(response);
-  //   });
-  // }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _loadIller();
-  // }
+  String? selectedIlce;
+  int? selectedIlceId;
+  String? selectedIl;
+  int? selectedIlId;
+  bool ilceEnabled = false;
+  List<Map<String, dynamic>> iller = [];
+  List<Map<String, dynamic>> ilceler = [];
   @override
   void dispose() {
     super.dispose();
@@ -198,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'eposta': email,
         'sifre': password,
         'rolid': 2,
-        'ilceid': 1,
+        'ilceid': selectedIlceId,
       });
       SnackBarHelper.showSuccess(context, "Kayıt Başarılı!");
       _nameController.clear();
@@ -223,6 +144,109 @@ class _RegisterScreenState extends State<RegisterScreen> {
         });
       }
     }
+  }
+
+  Future<void> fetchIller() async {
+    final data = await Supabase.instance.client
+        .from('iller')
+        .select()
+        .order('iladi');
+
+    setState(() {
+      iller = List<Map<String, dynamic>>.from(data);
+    });
+  }
+
+  Future<void> fetchIlceler(int ilid) async {
+    final data = await Supabase.instance.client
+        .from('ilceler')
+        .select()
+        .eq('ilid', ilid);
+
+    setState(() {
+      ilceler = List<Map<String, dynamic>>.from(data);
+      ilceEnabled = true;
+
+      selectedIlce = null;
+      selectedIlceId = null;
+    });
+  }
+
+  Future<void> selectIl() async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      backgroundColor: AppColors.blueGrey,
+      builder: (context) {
+        return ListView.builder(
+          itemCount: iller.length,
+          itemBuilder: (context, index) {
+            final il = iller[index];
+
+            return ListTile(
+              title: Text(il['iladi']),
+              onTap: () {
+                Navigator.pop(context, il);
+              },
+            );
+          },
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedIl = result['iladi'];
+        selectedIlId = result['ilid'];
+
+        selectedIlce = null;
+        selectedIlceId = null;
+        ilceEnabled = true;
+      });
+
+      fetchIlceler(selectedIlId!);
+    }
+  }
+
+  Future<void> selectIlce() async {
+    if (selectedIlId == null) {
+      SnackBarHelper.showError(context, "Önce il seçmelisin!");
+      return;
+    }
+
+    if (!ilceEnabled) return;
+
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      backgroundColor: AppColors.blueGrey,
+      builder: (context) {
+        return ListView.builder(
+          itemCount: ilceler.length,
+          itemBuilder: (context, index) {
+            final ilce = ilceler[index];
+
+            return ListTile(
+              title: Text(ilce['ilceadi']),
+              onTap: () {
+                Navigator.pop(context, ilce);
+              },
+            );
+          },
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedIlce = result['ilceadi'];
+        selectedIlceId = result['ilceid'];
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchIller();
   }
 
   @override
@@ -280,6 +304,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               icon: Icon(Icons.password),
               controller: _confirmPasswordController,
             ),
+            CustomListTileWidget(
+              title: selectedIl ?? "Yaşadığınız İl",
+              subTitle: const Text(""),
+              onTap: selectIl,
+            ),
+            SizedBox(height: 20),
+            CustomListTileWidget(
+              title: selectedIlce ?? "Yaşadığınız İlçe",
+              subTitle: const Text(""),
+              onTap: selectIlce,
+            ),
+            SizedBox(height: 20),
             _isLoading
                 ? Center(child: CircularProgressIndicator())
                 : CustomElevatedButton(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_elevated_button.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/core/utils/snackbar_helper.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_bottom_sheet.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_list_tile.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyAppointmentScreen extends StatefulWidget {
   const MyAppointmentScreen({super.key});
@@ -11,93 +13,96 @@ class MyAppointmentScreen extends StatefulWidget {
 }
 
 class _MyAppointmentScreenState extends State<MyAppointmentScreen> {
+  late Future<List> appointmentsFuture;
+  Future<List> getAppointments() async {
+    final araclar = await Supabase.instance.client
+        .from('araclar')
+        .select()
+        .eq('kullaniciid', UserSession.user?['kullaniciid']);
+    final aracIdList = araclar.map((e) => e['aracid']).toList();
+    if (aracIdList.isEmpty) {
+      return [];
+    }
+    final randevular = await Supabase.instance.client
+        .from('randevu')
+        .select('*, randevudetay(*, hizmet(hizmetadi))')
+        .inFilter('aracid', aracIdList)
+        .neq('durum', 'iptal')
+        .order('tarih', ascending: true);
+    return randevular;
+  }
+
+  Future<void> deleteAppointment(int id) async {
+    try {
+      await Supabase.instance.client
+          .from('randevu')
+          .update({'durum': 'iptal'})
+          .eq('randevuid', id);
+
+      setState(() {
+        appointmentsFuture = getAppointments();
+      });
+
+      if (mounted) {
+        SnackBarHelper.showSuccess(context, "Randevu iptal edildi.");
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.showError(context, "İptal işlemi başarısız: $e");
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    appointmentsFuture = getAppointments();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        children: [
-          CustomListTileWidget(
-            title: "İç Yıkama",
-            subTitle: Text("10.08.2026"),
-            onTap: () {},
-            leading: Icon(Icons.cleaning_services),
-            trailing: IconButton(
-              onPressed: () {
-                showCancelAppointment(context);
-              },
-              icon: Icon(Icons.more_vert),
-            ),
+      body: FutureBuilder(
+        future: appointmentsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Bir hata oluştu ${snapshot.error}"));
+          }
 
-            //PopupMenuButton(
-            //   itemBuilder: (context) {
-            //     return [
-            //       PopupMenuItem(child: Text("İptal Et"), value: "iptal"),
-            //     ];
-            //   },
-            // ),
-          ),
-          CustomListTileWidget(
-            title: "Dış Yıkama",
-            subTitle: Text("10.08.2026"),
-            onTap: () {},
-            leading: Icon(Icons.cleaning_services),
-            trailing: IconButton(
-              onPressed: () {
-                showCancelAppointment(context);
-              },
-              icon: Icon(Icons.more_vert),
-            ),
-          ),
-          CustomListTileWidget(
-            title: "Motor Yıkama",
-            subTitle: Text("10.08.2026"),
-            onTap: () {},
-            leading: Icon(Icons.cleaning_services),
-            trailing: IconButton(
-              onPressed: () {
-                showCancelAppointment(context);
-              },
-              icon: Icon(Icons.more_vert),
-            ),
-          ),
-          CustomListTileWidget(
-            title: "Araç Cilalama",
-            subTitle: Text("10.08.2026"),
-            onTap: () {},
-            leading: Icon(Icons.cleaning_services),
-            trailing: IconButton(
-              onPressed: () {
-                showCancelAppointment(context);
-              },
-              icon: Icon(Icons.more_vert),
-            ),
-          ),
-        ],
+          final appointments = snapshot.data ?? [];
+          if (appointments.isEmpty) {
+            return Center(child: Text("Henüz randevu yok"));
+          }
+
+          return ListView.builder(
+            itemCount: appointments.length,
+            itemBuilder: (context, index) {
+              final item = appointments[index];
+
+              return CustomListTileWidget(
+                title: "Tarih: ${item['tarih']}",
+                subTitle: Text(
+                  "Saat: ${item['secilensaat']}\n"
+                  "Hizmet: ${item['randevudetay'][0]['hizmet']['hizmetadi']}",
+                ),
+                onTap: () {},
+                trailing: IconButton(
+                  onPressed: () {
+                    showCancelAppointment(context, "Randevuyu İptal Et", () {
+                      deleteAppointment(item['randevuid']);
+                      Navigator.pop(context);
+                    });
+                  },
+                  icon: Icon(Icons.more_vert),
+                ),
+              );
+            },
+          );
+        },
       ),
-    );
-  }
-
-  Future<dynamic> showCancelAppointment(BuildContext context) {
-    return showModalBottomSheet(
-      backgroundColor: AppColors.blueGrey,
-      context: context,
-      builder: (context) {
-        return Container(
-          height: 200,
-          width: double.infinity,
-          child: Column(
-            children: [
-              Spacer(),
-              CustomElevatedButton(
-                title: "Randevuyu İptal Et",
-                onPressed: () {},
-                buttonBackground: AppColors.cancelColor,
-              ),
-              Spacer(),
-            ],
-          ),
-        );
-      },
     );
   }
 }

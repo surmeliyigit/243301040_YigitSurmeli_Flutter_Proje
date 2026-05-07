@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/core/data/car_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/utils/snackbar_helper.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/home/home_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_elevated_button.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_list_tile.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_text_field.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/form_label.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CreateAppointmentScreen extends StatefulWidget {
   const CreateAppointmentScreen({super.key});
@@ -17,22 +20,23 @@ class CreateAppointmentScreen extends StatefulWidget {
 
 class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
   bool isLoading = false;
-  String? selectedService;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  TextEditingController markaController = TextEditingController();
-  TextEditingController modelController = TextEditingController();
   TextEditingController typeController = TextEditingController();
   TextEditingController numberPlateController = TextEditingController();
-  final List<String> services = [
-    "İç Yıkama",
-    "Dış Yıkama",
-    "Klima Filtre Temizleme",
-    "Araç Cilalama",
-    "Paspas Temizleme",
-    "Araç Koltuk Yıkama",
-    "Araçta Pas Temizleme",
-  ];
+  String? selectedBrand;
+  int? selectedBrandId;
+  String? selectedModel;
+  String? selectedType;
+  int? selectedServiceId;
+  String? selectedServiceName;
+  String? selectedServicePrice;
+  int? selectedAracId;
+  int? selectedModelId;
+  List<Map<String, dynamic>> services = [];
+  List<Map<String, dynamic>> brands = [];
+  List<Map<String, dynamic>> models = [];
+  List<TimeOfDay> bookedTimes = [];
   final List<TimeOfDay> availableTimes = [
     TimeOfDay(hour: 9, minute: 0),
     TimeOfDay(hour: 10, minute: 0),
@@ -46,6 +50,7 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
     TimeOfDay(hour: 19, minute: 0),
     TimeOfDay(hour: 20, minute: 0),
   ];
+
   Future<void> pickDate() async {
     DateTime? date = await showDatePicker(
       context: context,
@@ -60,88 +65,206 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
         selectedDate = date;
       });
     }
+    await fetchBookedTimes();
   }
 
-  //
-  Future<void> CreateAppointment() async {
-    String marka = markaController.text.trim();
-    String model = modelController.text.trim();
-    String type = typeController.text.trim();
-    String numberPlate = numberPlateController.text.trim();
-
+  Future<void> fetchBrands() async {
+    final data = await Supabase.instance.client.from('markalar').select();
+    print("BRANDS: $data");
     setState(() {
-      isLoading = true;
+      brands = List<Map<String, dynamic>>.from(data);
     });
-    await Future.delayed(Duration(seconds: 2));
-    if (selectedService == null) {
-      SnackBarHelper.showError(context, "Lütfen Bir Hizmet Seçin!");
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-    if (selectedDate == null) {
-      SnackBarHelper.showError(context, "Lütfen tarih seçin!");
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-    if (selectedTime == null) {
-      SnackBarHelper.showError(context, "Lütfen bir saat seçin!");
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-    if (marka.isEmpty || model.isEmpty || type.isEmpty || numberPlate.isEmpty) {
-      SnackBarHelper.showError(context, "Lütfen tüm alanları doldurun!");
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-    //Randevunun Basarili oldugunu gosteren Dialog
-    showDialog(
+  }
+
+  Future<void> fetchModels(int markaId) async {
+    final data = await Supabase.instance.client
+        .from('modeller')
+        .select()
+        .eq('markaid', markaId);
+    print("MODELLER: $data");
+    setState(() {
+      models = List<Map<String, dynamic>>.from(data);
+    });
+  }
+
+  Future<void> selectBrand() async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      backgroundColor: AppColors.blueGrey,
       context: context,
       builder: (context) {
-        return AlertDialog(
-          iconColor: AppColors.green,
-          icon: Icon(Icons.check),
-          backgroundColor: AppColors.blueGrey,
-          title: Text("Başarılı", textAlign: TextAlign.start),
-          content: Text("Randevunuz oluşturuldu"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return HomeScreen();
-                    },
-                  ),
-                );
-              },
-              child: Text(
-                "Ana Sayfaya Dön",
-                style: TextStyle(color: AppColors.primary),
-              ),
-            ),
-          ],
+        return SelectionBottomSheet(items: brands, titleKey: 'marka');
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedBrand = result['marka'];
+        selectedBrandId = result['markaid'];
+        selectedModel = null;
+      });
+    }
+  }
+
+  Future<void> selectModel(int markaId) async {
+    final data = await Supabase.instance.client
+        .from('modeller')
+        .select()
+        .eq('markaid', markaId);
+
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      backgroundColor: AppColors.blueGrey,
+      context: context,
+      builder: (context) {
+        return SelectionBottomSheet(
+          items: List<Map<String, dynamic>>.from(data),
+          titleKey: 'modeladi',
         );
       },
     );
+
+    if (result != null) {
+      setState(() {
+        selectedModel = result['modeladi'];
+        selectedModelId = result['modelid'];
+      });
+    }
+  }
+
+  Future<int> createOrGetAracId() async {
+    final plaka = numberPlateController.text.trim();
+
+    final existing = await Supabase.instance.client
+        .from('araclar')
+        .select('aracid')
+        .eq('plaka', plaka)
+        .maybeSingle();
+
+    if (existing != null) {
+      return existing['aracid'];
+    }
+
+    final inserted = await Supabase.instance.client
+        .from('araclar')
+        .insert({
+          'kullaniciid': UserSession.user?['kullaniciid'],
+          'modelid': selectedModelId,
+          'plaka': plaka,
+        })
+        .select('aracid')
+        .single();
+
+    return inserted['aracid'];
+  }
+
+  Future<void> selectService() async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      backgroundColor: AppColors.blueGrey,
+      builder: (context) {
+        return SelectionBottomSheet(items: services, titleKey: 'hizmetadi');
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedServiceId = result['hizmetid'];
+        selectedServiceName = result['hizmetadi'];
+        selectedServicePrice = result['listeFiyati'].toString();
+      });
+    }
+  }
+
+  Future<void> fetchServices() async {
+    final data = await Supabase.instance.client.from('hizmet').select();
+    print("SERVICES: $data");
     setState(() {
-      isLoading = false;
+      services = List<Map<String, dynamic>>.from(data);
     });
+  }
+
+  Future<void> createAppointment() async {
+    setState(() => isLoading = true);
+
+    if (selectedServiceId == null ||
+        selectedDate == null ||
+        selectedTime == null ||
+        selectedBrandId == null ||
+        selectedModelId == null ||
+        numberPlateController.text.trim().isEmpty) {
+      setState(() => isLoading = false);
+      SnackBarHelper.showError(context, "Tüm alanları doldur");
+      return;
+    }
+
+    try {
+      final aracId = await createOrGetAracId();
+
+      await Supabase.instance.client.rpc(
+        'randevu_olustur_ve_detaylandir',
+        params: {
+          'p_aracid': aracId,
+          'p_tarih': selectedDate!.toIso8601String().split('T')[0],
+          'p_saat':
+              '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}:00',
+          'p_hizmetid': selectedServiceId,
+        },
+      );
+
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: AppColors.blueGrey,
+          title: Text("Başarılı"),
+          content: Text("Randevu ve detayları başarıyla oluşturuldu."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => HomeScreen()),
+                  (roote) => false,
+                );
+              },
+              child: Text("Tamam"),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      SnackBarHelper.showError(context, "İşlem başarısız: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> fetchBookedTimes() async {
+    if (selectedDate == null) return;
+
+    final response = await Supabase.instance.client
+        .from('randevu')
+        .select('secilensaat')
+        .eq('tarih', selectedDate!.toIso8601String().split('T')[0]);
+
+    bookedTimes = (response as List).map((item) {
+      final time = item['secilensaat'];
+
+      final parts = time.split(":");
+      return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    }).toList();
+
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchBrands();
+    fetchServices();
   }
 
   //Ram bellek sismesin diye yaptim
   @override
   void dispose() {
-    markaController.dispose();
-    modelController.dispose();
     typeController.dispose();
     numberPlateController.dispose();
     super.dispose();
@@ -156,29 +279,10 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
         child: ListView(
           children: [
             CustomListTileWidget(
-              title: selectedService ?? "Hizmet Seç",
+              title: selectedServiceName ?? "Hizmet Seç",
               subTitle: Text(""),
               onTap: () {
-                showModalBottomSheet(
-                  backgroundColor: Colors.blueGrey[100],
-                  context: context,
-                  builder: (context) {
-                    return ListView.builder(
-                      itemCount: services.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(services[index]),
-                          onTap: () {
-                            setState(() {
-                              selectedService = services[index];
-                            });
-                            Navigator.of(context).pop();
-                          },
-                        );
-                      },
-                    );
-                  },
-                );
+                selectService();
               },
             ),
             SizedBox(height: 20),
@@ -202,17 +306,22 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
                   backgroundColor: AppColors.blueGrey,
                   context: context,
                   builder: (context) {
+                    final availableFilteredTimes = availableTimes.where((time) {
+                      return !bookedTimes.any(
+                        (b) => b.hour == time.hour && b.minute == time.minute,
+                      );
+                    }).toList();
                     return ListView.builder(
-                      itemCount: availableTimes.length,
+                      itemCount: availableFilteredTimes.length,
                       itemBuilder: (context, index) {
-                        final time = availableTimes[index];
+                        final time = availableFilteredTimes[index];
                         return ListTile(
                           title: Text(
                             "${time.hour.toString().padLeft(2, "0")}:${time.minute.toString().padLeft(2, "0")}",
                           ),
                           onTap: () {
                             setState(() {
-                              selectedTime = availableTimes[index];
+                              selectedTime = time;
                             });
                             Navigator.of(context).pop();
                           },
@@ -224,29 +333,23 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
               },
             ),
             SizedBox(height: 20),
-            FormLabel(label: "Aracınızın Markasını Giriniz:"),
-            CustomTextField(
-              hintText: "Aracınızın Markası",
-              labelText: "",
-              isPassword: false,
-              icon: Icon(Icons.add),
-              controller: markaController,
+            CustomListTileWidget(
+              title: selectedBrand ?? "Marka Seç",
+              subTitle: const Text(""),
+              onTap: selectBrand,
             ),
-            FormLabel(label: "Aracınızın Modelini Giriniz:"),
-            CustomTextField(
-              hintText: "Aracınızın modeli",
-              labelText: "",
-              isPassword: false,
-              icon: Icon(Icons.add),
-              controller: modelController,
-            ),
-            FormLabel(label: "Aracınızın Türünü Giriniz:"),
-            CustomTextField(
-              hintText: "Aracınızın Türü(Binek araç vb.)",
-              labelText: "",
-              isPassword: false,
-              icon: Icon(Icons.add),
-              controller: typeController,
+            SizedBox(height: 20),
+            CustomListTileWidget(
+              title: selectedModel ?? "Model Seç",
+              subTitle: const Text(""),
+              onTap: () {
+                if (selectedBrandId == null) {
+                  SnackBarHelper.showError(context, "Önce marka seçmelisin");
+                  return;
+                }
+
+                selectModel(selectedBrandId!);
+              },
             ),
             FormLabel(label: "Aracınızın Plakasını Giriniz:"),
             CustomTextField(
@@ -256,17 +359,55 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
               icon: Icon(Icons.add),
               controller: numberPlateController,
             ),
+
             isLoading
                 ? Center(child: CircularProgressIndicator())
                 : CustomElevatedButton(
                     title: "Randevu Oluştur",
-                    onPressed: () {
-                      CreateAppointment();
+                    onPressed: () async {
+                      createAppointment();
                     },
                   ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class SelectionBottomSheet extends StatelessWidget {
+  final List<Map<String, dynamic>> items;
+  final String titleKey;
+
+  const SelectionBottomSheet({
+    super.key,
+    required this.items,
+    required this.titleKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Text("Veri bulunamadı"),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+
+        return ListTile(
+          title: Text(item[titleKey]?.toString() ?? "-"),
+          onTap: () {
+            Navigator.pop(context, item);
+          },
+        );
+      },
     );
   }
 }

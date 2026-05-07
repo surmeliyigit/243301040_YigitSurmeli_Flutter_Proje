@@ -52,7 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   )
-                  .then((_) {//bak buna
+                  .then((_) {
+                    //bak buna
                     setState(() {});
                   });
             },
@@ -108,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           backgroundColor: AppColors.secondary,
           child: Text(
-            _selectedIndex == 2 ? "Randevu Ekle" : "Randevu Al",
+            "Randevu Al",
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: AppColors.backgroundPrimary,
@@ -117,9 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      floatingActionButtonLocation: _selectedIndex == 2
-          ? FloatingActionButtonLocation.endFloat
-          : FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }

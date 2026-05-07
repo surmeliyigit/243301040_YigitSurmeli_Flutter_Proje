@@ -18,7 +18,7 @@ class LisTileDrawerItemWidget extends StatelessWidget {
       iconColor: AppColors.primary,
       title: Text(title),
       leading: leading,
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/utils/snackbar_helper.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/admin/admin_home.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
@@ -10,7 +9,6 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_naviga
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_text_field.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/register/register_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/home/home_screen.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,7 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
-
   void _girisYap() async {
     setState(() {
       _isLoading = true;
@@ -70,17 +67,26 @@ class _LoginScreenState extends State<LoginScreen> {
         });
         return;
       }
+      if (response['durum'] != 'aktif') {
+        SnackBarHelper.showError(context, "Hesabınız pasif durumda!");
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => AccountBlockedScreen()),
+        );
+        setState(() => _isLoading = false);
+        return;
+      }
       UserSession.user = response;
       final roleData = response['roller'];
       final String userRole = roleData != null ? roleData['rol'] : 'Kullanıcı';
 
       _emailController.clear();
       _passwordController.clear();
-        //admin girisi icin yonledirme
+      //admin girisi icin yonledirme
       if (userRole == 'Admin') {
         SnackBarHelper.showSuccess(context, "Hoş geldiniz Admin!");
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+          MaterialPageRoute(builder: (context) => AdminHomeScreen()),
         );
       } else {
         //Normal kullanıcı girisi icin yonlendirme
@@ -166,3 +172,28 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class ImagePath {}
+
+class AccountBlockedScreen extends StatelessWidget {
+  final String email = "yigit@gmail.com";
+
+  const AccountBlockedScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Hesap Pasif")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Hesabınız pasif durumda."),
+            SizedBox(height: 10),
+            Text("Admin ile iletişime geçin."),
+            SizedBox(height: 10),
+            Text("Admin E-posta: $email"),
+          ],
+        ),
+      ),
+    );
+  }
+}

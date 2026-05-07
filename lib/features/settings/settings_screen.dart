@@ -7,6 +7,7 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/profile/profile_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/services/services_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_elevated_button.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_sheet_text_field.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_text_field.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/settings_tile.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/main.dart';
@@ -48,180 +49,181 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final role = UserSession.user?['roller']?['rol'] ?? '';
+    final isAdmin = role == "Admin";
     return Scaffold(
-      body: Column(
-        children: [
-          ListTile(
-            textColor: AppColors.textDark,
-            contentPadding: EdgeInsets.only(left: 5, right: 24),
-            leading: CircleAvatar(
-              radius: 30,
-              backgroundImage: AssetImage("assets/image/car_background.png"),
-            ),
-            title: Text(
-              "Çıkış Yap",
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text("${UserSession.user?['ad']}"),
-            trailing: Icon(Icons.logout),
-            onTap: () {
-              Navigator.of(context).pushAndRemoveUntil(
-                //pushReplacemnetda kullanabilirim zaten sadece  bir sayfa stack de olacak
-                MaterialPageRoute(
-                  builder: (context) {
-                    return LoginScreen();
-                  },
-                ),
-                (route) => false,
-              );
-            },
-          ),
-          Divider(),
-          SettingsTile(
-            leading: Icon(Icons.person_outline),
-            title: "Kullanıcı Profili",
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return ProfileScreen();
-                  },
-                ),
-              );
-            },
-          ),
-          Divider(),
-          SettingsTile(
-            leading: Icon(Icons.lock_outline),
-            title: "Şifreyi Değiştir",
-            onTap: () {
-              showModalBottomSheet(
-                showDragHandle: true, //tutamac ekler panele
-                backgroundColor: AppColors.blueGrey,
-                context: context,
-                builder: (context) {
-                  bool isLoadingSheet = false;
-                  return StatefulBuilder(
-                    builder: (context, setStateSheet) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: ScreenPadding.smallPadding,
-                            child: Text(
-                              "Yeni Şifrenizi Oluşturunuz:",
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          ChangePasswordTextField(
-                            hintText: "Yeni şifre giriniz",
-                            controller: _changePasswordController,
-                          ),
-                          ChangePasswordTextField(
-                            hintText: "Şifre tekrar",
-                            controller: _repeatPasswordController,
-                          ),
-                          Center(
-                            child: isLoadingSheet
-                                ? CircularProgressIndicator()
-                                : CustomElevatedButton(
-                                    title: "Şifreyi Değiştir",
-                                    // onPressed: () async {//hocaya sor bunu
-                                    //   setStateSheet(() {
-                                    //     isLoadingSheet = true;
-                                    //   });
-                                    //   await Future.delayed(Duration(seconds: 2));
-                                    //   try {
-                                    //     await sifreGuncelle();
-                                    //     SnackBarHelper.showSuccess(
-                                    //       context,
-                                    //       "Şifreniz güncellendi!",
-                                    //     );
-                                    //   } catch (e) {
-                                    //     SnackBarHelper.showError(context, "$e");
-                                    //   }
-                                    //   setStateSheet(() {
-                                    //     isLoadingSheet = false;
-                                    //   });
-                                    // },
-                                    onPressed: () async {
-                                      setStateSheet(() {
-                                        isLoadingSheet = true;
-                                      });
-
-                                      try {
-                                        await Future.delayed(
-                                          Duration(seconds: 2),
-                                        ); // test için
-
-                                        await sifreGuncelle();
-
-                                        // if (!context.mounted) return;//bu ne işe yarıyor
-
-                                        Navigator.of(context).pop();
-
-                                        SnackBarHelper.showSuccess(
-                                          context,
-                                          "Şifreniz güncellendi!",
-                                        );
-                                      } catch (e) {
-                                        SnackBarHelper.showError(context, "$e");
-                                      }
-
-                                      setStateSheet(() {
-                                        isLoadingSheet = false;
-                                      });
-                                    },
-                                  ),
-                          ),
-                          SizedBox(height: 20),
-                        ],
-                      );
+      appBar:
+          isAdmin //UserSession.user?['roller']['rolid'] == 1 deyınce neden calismiyor
+          ? AppBar(title: Text("Ayarlar"), centerTitle: false)
+          : null,
+      body: Padding(
+        padding: UserSession.user?['rolid'] != 1
+            ? EdgeInsets.all(0)
+            : ScreenPadding.mediumPadding,
+        child: Column(
+          children: [
+            ListTile(
+              textColor: AppColors.textDark,
+              contentPadding: EdgeInsets.only(left: 5, right: 24),
+              leading: CircleAvatar(
+                radius: 30,
+                backgroundImage: AssetImage("assets/image/car_background.png"),
+              ),
+              title: Text(
+                "Çıkış Yap",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text("${UserSession.user?['ad']}"),
+              trailing: Icon(Icons.logout),
+              onTap: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                  //pushReplacemnetda kullanabilirim zaten sadece  bir sayfa stack de olacak
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return LoginScreen();
                     },
-                  );
-                },
-              );
-            },
-          ),
-          Divider(),
-          SettingsTile(
-            leading: Icon(Icons.notifications_on_outlined),
-            title: "Bildirimleri Aç",
-            onTap: () {},
-          ),
-          Divider(),
-        ],
-      ),
-    );
-  }
-}
+                  ),
+                  (route) => false,
+                );
+              },
+            ),
+            Divider(),
+            SettingsTile(
+              leading: Icon(Icons.person_outline),
+              title: "Kullanıcı Profili",
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ProfileScreen();
+                    },
+                  ),
+                );
+              },
+            ),
+            Divider(),
+            SettingsTile(
+              leading: Icon(Icons.lock_outline),
+              title: "Şifreyi Değiştir",
+              onTap: () {
+                showModalBottomSheet(
+                  showDragHandle: true, //tutamac ekler panele
+                  backgroundColor: AppColors.blueGrey,
+                  context: context,
+                  builder: (context) {
+                    bool isLoadingSheet = false;
+                    return StatefulBuilder(
+                      builder: (context, setStateSheet) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: ScreenPadding.smallPadding,
+                              child: Text(
+                                "Yeni Şifrenizi Oluşturunuz:",
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            CustomSheetTextField(
+                              hintText: "Yeni şifre giriniz",
+                              controller: _changePasswordController,
+                              isPassword: true,
+                              icon: Icon(Icons.password),
+                              isDescribeController: false,
+                            ),
+                            CustomSheetTextField(
+                              hintText: "Şifre tekrar",
+                              controller: _repeatPasswordController,
+                              isPassword: true,
+                              icon: Icon(Icons.password),
+                              isDescribeController: false,
+                            ),
+                            Center(
+                              child: isLoadingSheet
+                                  ? CircularProgressIndicator()
+                                  : CustomElevatedButton(
+                                      title: "Şifreyi Değiştir",
+                                      onPressed: () async {
+                                        setStateSheet(() {
+                                          isLoadingSheet = true;
+                                        });
 
-class ChangePasswordTextField extends StatelessWidget {
-  const ChangePasswordTextField({
-    super.key,
-    required this.hintText,
-    required this.controller,
-  });
-  final String hintText;
-  final TextEditingController controller;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: ScreenPadding.smallPadding,
-      child: TextField(
-        obscureText: true,
-        decoration: InputDecoration(
-          prefixIcon: Icon(Icons.password),
-          fillColor: AppColors.backgroundSecondary,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
-          hintText: hintText,
+                                        try {
+                                          await Future.delayed(
+                                            Duration(seconds: 2),
+                                          ); // test için
+
+                                          await sifreGuncelle();
+
+                                          // if (!context.mounted) return;//bu ne işe yarıyor
+
+                                          Navigator.of(context).pop();
+
+                                          SnackBarHelper.showSuccess(
+                                            context,
+                                            "Şifreniz güncellendi!",
+                                          );
+                                        } catch (e) {
+                                          SnackBarHelper.showError(
+                                            context,
+                                            "$e",
+                                          );
+                                        }
+
+                                        setStateSheet(() {
+                                          isLoadingSheet = false;
+                                        });
+                                      },
+                                    ),
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+            Divider(),
+            SettingsTile(
+              leading: Icon(Icons.notifications_on_outlined),
+              title: "Bildirimleri Aç",
+              onTap: () {},
+            ),
+            Divider(),
+            !isAdmin
+                ? SettingsTile(
+                    leading: Icon(Icons.account_box_outlined),
+                    title: "Hesabı Kaldır",
+                    onTap: () async {
+                      final userId = UserSession.user?['kullaniciid'];
+                      if (userId == null) return;
+
+                      await Supabase.instance.client
+                          .from('kullanici')
+                          .update({'durum': 'pasif'})
+                          .eq('kullaniciid', userId);
+
+                      UserSession.user = null;
+
+                      if (context.mounted) {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (context) => LoginScreen(),
+                          ),
+                          (route) => false,
+                        );
+                      }
+                    },
+                  )
+                : SizedBox(),
+          ],
         ),
-        maxLength: 30,
-        controller: controller,
       ),
     );
   }
