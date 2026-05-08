@@ -27,8 +27,9 @@ class _MyAppointmentScreenState extends State<MyAppointmentScreen> {
         .from('randevu')
         .select('*, randevudetay(*, hizmet(hizmetadi))')
         .inFilter('aracid', aracIdList)
-        .neq('durum', 'iptal')
+        .inFilter('durum', ['Beklemede', 'onaylandi'])
         .order('tarih', ascending: true);
+    print("RANDEVULAR => $randevular");
     return randevular;
   }
 

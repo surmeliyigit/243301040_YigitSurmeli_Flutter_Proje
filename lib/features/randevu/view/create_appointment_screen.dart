@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/core/data/car_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/utils/snackbar_helper.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/home/home_screen.dart';
@@ -60,7 +59,6 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
     );
 
     if (date != null) {
-      //buna bak
       setState(() {
         selectedDate = date;
       });
@@ -243,8 +241,8 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
     final response = await Supabase.instance.client
         .from('randevu')
         .select('secilensaat')
-        .eq('tarih', selectedDate!.toIso8601String().split('T')[0]);
-
+        .eq('tarih', selectedDate!.toIso8601String().split('T')[0])
+        .neq('durum', 'iptal');
     bookedTimes = (response as List).map((item) {
       final time = item['secilensaat'];
 
@@ -302,14 +300,32 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
                   : "${selectedTime!.hour.toString().padLeft(2, "0")}.${selectedTime!.minute.toString().padLeft(2, "0")}",
               subTitle: Text(""),
               onTap: () {
+                if (selectedDate == null) {
+                  SnackBarHelper.showError(context, "Önce tarih seçmelisin");
+                  return;
+                }
                 showModalBottomSheet(
                   backgroundColor: AppColors.blueGrey,
                   context: context,
                   builder: (context) {
+                    final now = DateTime.now();
+
                     final availableFilteredTimes = availableTimes.where((time) {
-                      return !bookedTimes.any(
+                      final isBooked = bookedTimes.any(
                         (b) => b.hour == time.hour && b.minute == time.minute,
                       );
+
+                      final selectedDateTime = DateTime(
+                        selectedDate!.year,
+                        selectedDate!.month,
+                        selectedDate!.day,
+                        time.hour,
+                        time.minute,
+                      );
+
+                      final isPast = selectedDateTime.isBefore(now);
+
+                      return !isBooked && !isPast;
                     }).toList();
                     return ListView.builder(
                       itemCount: availableFilteredTimes.length,

@@ -1,7 +1,5 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/constants/app_padding.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/utils/snackbar_helper.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/services/services_details.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_list_tile.dart';

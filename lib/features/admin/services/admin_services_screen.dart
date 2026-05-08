@@ -28,17 +28,6 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
     });
   }
 
-  // Future<void> addService() async {
-  //   await Supabase.instance.client.from('hizmet').insert({
-  //     'hizmetadi': nameController.text.trim(),
-  //     'listefiyati': double.tryParse(priceController.text) ?? 0,
-  //     'hizmetsuresi': int.tryParse(timeController.text) ?? 0,
-  //   });
-  //   await loadServices();
-  //   nameController.clear();
-  //   priceController.clear();
-  //   timeController.clear();
-  // }
   Future<void> addService() async {
     final name = nameController.text.trim();
     final timeText = timeController.text.trim();
@@ -98,7 +87,7 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
                 "Hizmet fiyatı: ${service['listefiyati'] ?? "0"} TL\n"
                 "Hizmet Süresi: ${service['hizmetsuresi'] ?? "0"}dk ",
               ),
-              trailing: TextButton(
+              trailing: IconButton(
                 onPressed: () {
                   showCancelAppointment(context, "Hizmeti Sil", () async {
                     deleteService(service['hizmetid']);
@@ -106,7 +95,7 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
                     await loadServices();
                   });
                 },
-                child: Icon(Icons.more_vert),
+                icon: Icon(Icons.more_vert),
               ),
               onTap: () {},
             );

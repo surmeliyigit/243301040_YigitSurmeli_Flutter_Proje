@@ -8,7 +8,6 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/features/randevu/view/my_appoi
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/services/services_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/settings/settings_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_hizmet.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_navigator_text_button.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_positined_text_widget.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/favorite_card.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/section_header.dart';

@@ -16,7 +16,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _surnameController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
   TextEditingController _mailController = TextEditingController();
   bool _isLoading = false;
   @override
@@ -32,12 +31,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .select()
         .eq('kullaniciid', userId)
         .single();
-    //     //hocaya sor neden setstate icinde yaptık bunları setstatede yapmadan oluyor
-    // setState(() {
-    //   _nameController.text = response['ad'] ?? "";
-    //   _surnameController.text = response['soyad'] ?? "";
-    //   _mailController.text = response['eposta'] ?? "";
-    // });
     _nameController.text = response['ad'] ?? "";
     _surnameController.text = response['soyad'] ?? "";
     _mailController.text = response['eposta'] ?? "";
@@ -111,7 +104,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(30),
                 child: CircleAvatar(
-                  backgroundImage: AssetImage("assets/image/pas_temizleme.png"),
+                  backgroundImage: AssetImage(
+                    "assets/image/car_background.png",
+                  ),
                   radius: 75,
                 ),
               ),

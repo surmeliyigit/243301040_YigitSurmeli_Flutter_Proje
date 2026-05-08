@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/utils/snackbar_helper.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/login/login_screen.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/features/home/home_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_elevated_button.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_list_tile.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_navigator_text_button.dart';
@@ -60,9 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lütfen tüm alanları doldurun!")),
-      );
+      SnackBarHelper.showError(context, "Lütfen tüm alanları doldurun!");
       setState(() {
         _isLoading = false;
       });
@@ -330,19 +326,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   LoginScreen(), //buraya duzeltme yapacagiz poplarken route vermemize gerek yok
               type: NavigationType.pop,
             ),
-            // GestureDetector(
-            //   onTap: () {
-            //     _showIlPicker();
-            //   },
-            //   child: Container(
-            //     padding: EdgeInsets.all(15),
-            //     decoration: BoxDecoration(
-            //       border: Border.all(color: Colors.grey),
-            //       borderRadius: BorderRadius.circular(10),
-            //     ),
-            //     child: Text(selectedIlName ?? "İl seç"),
-            //   ),
-            // ),
           ],
         ),
       ),

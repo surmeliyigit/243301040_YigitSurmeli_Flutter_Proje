@@ -5,12 +5,9 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/core/utils/snackbar_helper.dar
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/login/login_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/users/user_data.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/profile/profile_screen.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/features/services/services_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_elevated_button.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_sheet_text_field.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_text_field.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/settings_tile.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -155,11 +152,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         try {
                                           await Future.delayed(
                                             Duration(seconds: 2),
-                                          ); // test için
+                                          );
 
                                           await sifreGuncelle();
-
-                                          // if (!context.mounted) return;//bu ne işe yarıyor
 
                                           Navigator.of(context).pop();
 
@@ -168,6 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             "Şifreniz güncellendi!",
                                           );
                                         } catch (e) {
+                                          Navigator.of(context).pop();
                                           SnackBarHelper.showError(
                                             context,
                                             "$e",
@@ -189,12 +185,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             ),
-            Divider(),
-            SettingsTile(
-              leading: Icon(Icons.notifications_on_outlined),
-              title: "Bildirimleri Aç",
-              onTap: () {},
-            ),
+            // Divider(),
+            // SettingsTile(
+            //   leading: Icon(Icons.notifications_on_outlined),
+            //   title: "Bildirimleri Aç", 
+            //   onTap: () {},
+            // ),
             Divider(),
             !isAdmin
                 ? SettingsTile(
