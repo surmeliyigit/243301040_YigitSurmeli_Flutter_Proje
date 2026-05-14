@@ -74,16 +74,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               subtitle: Text("${UserSession.user?['ad']}"),
               trailing: Icon(Icons.logout),
-              onTap: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  //pushReplacemnetda kullanabilirim zaten sadece  bir sayfa stack de olacak
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return LoginScreen();
-                    },
-                  ),
-                  (route) => false,
-                );
+              onTap: () async {
+                final userId = UserSession.user?['kullaniciid'];
+
+                if (userId == null) return;
+
+                await Supabase.instance.client.from('logs').insert({
+                  'kullaniciid': userId,
+                  'islem': 'cikis_yapildi',
+                  'hedef_tablo': 'kullanici',
+                  'hedef_id': userId,
+                });
+
+                UserSession.user = null;
+
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return LoginScreen();
+                      },
+                    ),
+                    (route) => false,
+                  );
+                }
               },
             ),
             Divider(),
@@ -185,12 +199,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             ),
-            // Divider(),
-            // SettingsTile(
-            //   leading: Icon(Icons.notifications_on_outlined),
-            //   title: "Bildirimleri Aç", 
-            //   onTap: () {},
-            // ),
             Divider(),
             !isAdmin
                 ? SettingsTile(
@@ -198,12 +206,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: "Hesabı Kaldır",
                     onTap: () async {
                       final userId = UserSession.user?['kullaniciid'];
+
                       if (userId == null) return;
 
                       await Supabase.instance.client
                           .from('kullanici')
                           .update({'durum': 'pasif'})
                           .eq('kullaniciid', userId);
+
+                      await Supabase.instance.client.from('logs').insert({
+                        'kullaniciid': userId,
+                        'islem': 'hesap_pasif_yapildi',
+                        'hedef_tablo': 'kullanici',
+                        'hedef_id': userId,
+                      });
 
                       UserSession.user = null;
 

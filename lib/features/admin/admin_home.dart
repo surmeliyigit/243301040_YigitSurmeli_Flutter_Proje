@@ -182,15 +182,30 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             LisTileDrawerItemWidget(
               title: "Çıkış Yap",
               leading: Icon(Icons.logout),
-              onTap: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return LoginScreen();
-                    },
-                  ),
-                  (route) => false,
-                );
+              onTap: () async {
+                final userId = UserSession.user?['kullaniciid'];
+
+                if (userId != null) {
+                  await Supabase.instance.client.from('logs').insert({
+                    'kullaniciid': userId,
+                    'islem': 'cikis_yapildi',
+                    'hedef_tablo': 'kullanici',
+                    'hedef_id': userId,
+                  });
+                }
+
+                UserSession.user = null;
+
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return LoginScreen();
+                      },
+                    ),
+                    (route) => false,
+                  );
+                }
               },
             ),
           ],

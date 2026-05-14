@@ -68,7 +68,6 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
 
   Future<void> fetchBrands() async {
     final data = await Supabase.instance.client.from('markalar').select();
-    print("BRANDS: $data");
     setState(() {
       brands = List<Map<String, dynamic>>.from(data);
     });
@@ -79,7 +78,6 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
         .from('modeller')
         .select()
         .eq('markaid', markaId);
-    print("MODELLER: $data");
     setState(() {
       models = List<Map<String, dynamic>>.from(data);
     });

@@ -40,7 +40,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         .from('kullanici')
         .update({'durum': 'aktif'})
         .eq('kullaniciid', id);
-
+    await Supabase.instance.client.from('logs').insert({
+      'kullaniciid': id,
+      'islem': 'hesap_aktif_edildi',
+      'hedef_tablo': 'kullanici',
+      'hedef_id': id,
+    });
     await loadUsers();
   }
 

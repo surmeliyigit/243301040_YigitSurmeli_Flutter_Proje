@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/core/colors/app_colors.dart';
-import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/login/login_screen.dart';
+import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/auth_gate/auth_gate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -14,7 +14,9 @@ void main() async {
   );
   runApp(const MyApp());
 }
+
 final supabase = Supabase.instance.client;
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -47,7 +49,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: AppColors.backgroundSecondary,
         ),
       ),
-      home: LoginScreen(),
+      home: AuthGate(),
     );
   }
 }

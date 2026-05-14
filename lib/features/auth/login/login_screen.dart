@@ -10,6 +10,8 @@ import 'package:oto_yikama_randevu_hizmet_sistemi/features/widgets/custom_text_f
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/auth/register/register_screen.dart';
 import 'package:oto_yikama_randevu_hizmet_sistemi/features/home/home_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -77,21 +79,36 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
       UserSession.user = response;
+
       final roleData = response['roller'];
       final String userRole = roleData != null ? roleData['rol'] : 'Kullanıcı';
 
+      final prefs = await SharedPreferences.getInstance();
+
+      if (userRole != 'Admin') {
+        prefs.setString('user', jsonEncode(response));
+      }
+
+      // logs HERKES için
+      await Supabase.instance.client.from('logs').insert({
+        'kullaniciid': response['kullaniciid'],
+        'islem': 'giris_yapildi',
+        'hedef_tablo': 'kullanici',
+        'hedef_id': response['kullaniciid'],
+      });
+
       _emailController.clear();
       _passwordController.clear();
-      //admin girisi icin yonledirme
+
+      // yönlendirme
       if (userRole == 'Admin') {
         SnackBarHelper.showSuccess(context, "Hoş geldiniz Admin!");
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminHomeScreen()),
-        );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => AdminHomeScreen()));
       } else {
-        //Normal kullanıcı girisi icin yonlendirme
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
       }
     } catch (e) {
@@ -122,7 +139,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         title: Text("Giriş Ekranı"),
         actions: [
-          IconButton(icon: Icon(Icons.notifications), onPressed: () {}),
+          Padding(
+            padding: ScreenPadding.extraSmallPadding,
+            child: Image.asset("assets/oto_yikama_logo.png"),
+          ),
         ],
       ),
       body: Padding(
