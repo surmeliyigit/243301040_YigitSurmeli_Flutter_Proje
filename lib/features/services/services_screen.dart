@@ -33,6 +33,22 @@ class _ServicesScreenState extends State<ServicesScreen> {
         return "assets/image/pas_temizleme.png";
       case "Paspas Temizliği":
         return "assets/image/paspas_temizleme.png";
+      case "Motor Temizleme":
+        return "assets/image/motor_temizleme.png";
+      case "Buharlı Temizlik":
+        return "assets/image/buharli_temizlik.png";
+      case "Jant Bakım ve Parlatma":
+        return "assets/image/jant_parlatma.png";
+      case "Far Temizleme ve Parlatma":
+        return "assets/image/far_temizleme.png";
+      case "Antibakteriyel İç Temizlik":
+        return "assets/image/antibakteriyel_ic_temizlik.png";
+      case "Ozonla Sterilizasyon":
+        return "assets/image/ozonla_sterilizasyon.png";
+      case "Kireç Temizliği":
+        return "assets/image/kirec_temizligi.png";
+        case "Evcil Hayvan Tüyü Temizliği":
+          return "assets/image/evcil_hayvan_tuy_temizlik.png";
       default:
         return "assets/oto_yikama_logo.png";
     }
@@ -83,7 +99,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
         .replaceAll('İ', 'i')
         .replaceAll('I', 'i')
         .replaceAll('U', 'ü')
-        .replaceAll('u', 'ü');
+        .replaceAll('u', 'ü')
+        .replaceAll('s', 'ş')
+        .replaceAll('c', 'ç');
   }
 
   void _filterServices(String value) async {

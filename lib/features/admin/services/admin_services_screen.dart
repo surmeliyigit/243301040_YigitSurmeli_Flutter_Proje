@@ -30,10 +30,11 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
 
   Future<void> addService() async {
     final name = nameController.text.trim();
+    final describeText=describeController.text.trim();
     final timeText = timeController.text.trim();
     final priceText = priceController.text.trim();
 
-    if (name.isEmpty || timeText.isEmpty || priceText.isEmpty) {
+    if (name.isEmpty || describeText.isEmpty || timeText.isEmpty || priceText.isEmpty) {
       throw "Tüm alanları doldurunuz!";
     }
 

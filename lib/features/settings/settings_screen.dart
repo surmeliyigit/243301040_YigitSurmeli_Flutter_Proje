@@ -231,6 +231,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           (route) => false,
                         );
                       }
+                      SnackBarHelper.showSuccess(context, "Hesabınız başarıyla pasif duruma çevrildi!");
                     },
                   )
                 : SizedBox(),
