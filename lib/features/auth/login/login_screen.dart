@@ -103,12 +103,14 @@ class _LoginScreenState extends State<LoginScreen> {
       // yönlendirme
       if (userRole == 'Admin') {
         SnackBarHelper.showSuccess(context, "Hoş geldiniz Admin!");
-        Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => AdminHomeScreen()));
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => AdminHomeScreen()),
+          (route) => false,
+        );
       } else {
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
         );
       }
     } catch (e) {
